@@ -6,9 +6,9 @@ Por favor marca a continuación los ejercicios que hayáis terminado:
 
 **4.1 Fundamentos de MySQL:**
 
-- [x] 1.  Crea la base de datos.
+- [ ] 1.  Crea la base de datos.
 - [ ] 2.  Inserta valores a la bases de datos.
-- [ ] 3.  Crea un repositorio en Github.
+- [x] 3.  Crea un repositorio en Github.
 
 **4.2 CRUD MySQL:**
 
