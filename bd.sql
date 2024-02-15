@@ -22,4 +22,4 @@ name varchar(45) not null,
 lastName varchar(45) not null,
 country varchar(45) not null,
 birthday date
-);idActors
+);
