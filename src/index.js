@@ -30,11 +30,19 @@ server.get('/movies', async (req, res) => {
   const conex = await getConnection();
   const sql = 'SELECT * FROM movies';
   const [results, fields] = await conex.query(sql);
-  console.log(results);
-  console.log(fields);
+ 
+  const sql2 = 'SELECT * FROM movies WHERE genre = ?';
+  const [result] = await conex.query(sql2, [req.query.genre]);
   conex.end();
-  res.json({ success: true, data: results });
+  res.json({ success: true, data: result });
 });
+
+// app.get('/movies', async (req,res) => {
+//   const conex = await getConnection();
+//   const sql = 'SELECT * FROM movies WHERE genre = ?';
+//   const [result] = await conex.query(sql, [req.query.genre]);
+//   res.json({result: result});
+// });
 
 //static server
 const staticServer = './web';
