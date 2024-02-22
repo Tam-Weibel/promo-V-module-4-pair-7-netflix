@@ -5,6 +5,7 @@ const mysql = require('mysql2/promise');
 // create and config server
 const server = express();
 server.use(cors());
+server.set('view engine', 'ejs');
 server.use(express.json());
 
 //connect db
@@ -37,12 +38,16 @@ server.get('/movies', async (req, res) => {
   res.json({ success: true, data: result });
 });
 
-// app.get('/movies', async (req,res) => {
-//   const conex = await getConnection();
-//   const sql = 'SELECT * FROM movies WHERE genre = ?';
-//   const [result] = await conex.query(sql, [req.query.genre]);
-//   res.json({result: result});
-// });
+server.get('/movie/:idMovies', async(req, res) => {
+  console.log(req.params.idMovies);
+  const conex = await getConnection();
+  const sql = 'SELECT * FROM movies WHERE idMovies = ?';
+  const [results] = await conex.query(sql, [req.params.idMovies]);
+  conex.end();
+  // res.json(results);
+  res.render('movie', {data: results[0]});
+});
+
 
 //static server
 const staticServer = './src/public-react';
