@@ -1,7 +1,8 @@
 // login
 
 const getMoviesFromApi = () => {
-  // console.log('Esto es el console log muestrame' data);
+  console.log('Se están pidiendo las películas de la app');
+
   return fetch('//localhost:4000/movies')
     .then((response) => response.json())
     .then((data) => {
