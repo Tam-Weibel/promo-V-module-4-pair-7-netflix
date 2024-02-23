@@ -27,15 +27,23 @@ server.listen(serverPort, () => {
 });
 
 //endpoints
-server.get('/movies', async (req, res) => {
-  const conex = await getConnection();
-  const sql = 'SELECT * FROM movies';
-  const [results, fields] = await conex.query(sql);
- 
-  const sql2 = 'SELECT * FROM movies WHERE genre = ?';
-  const [result] = await conex.query(sql2, [req.query.genre]);
+server.get('/movies', async(req, res) => {
+  const {genre, sort} = req.query;
+  console.log(req.query);
+  const conex = await connectDB();
+  let listMovies = [];
+  if ( gender === '') {
+      const selectMovie = `SELECT * FROM movies ORDER BY title ${sort}`;
+      const [resultMovies] = await conex.query(selectMovie); //no necesito un segundo parámetro porque no tengo un valor variable que sustituir
+      listMovies = resultMovies;
+  } else {
+      const selectMovie = `SELECT * FROM movies WHERE genre = ? ORDER BY title ${sort}`;
+      const [resultMovies] = await conex.query(selectMovie, [genre]);
+      listMovies = resultMovies;
+  }
+  console.log(resultMovies);
   conex.end();
-  res.json({ success: true, data: result });
+  res.json({success: true, movies: listMovies});
 });
 
 server.get('/movie/:idMovies', async(req, res) => {
