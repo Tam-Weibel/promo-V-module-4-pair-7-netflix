@@ -32,7 +32,7 @@ server.get('/movies', async(req, res) => {
   console.log(req.query);
   const conex = await connectDB();
   let listMovies = [];
-  if ( gender === '') {
+  if ( genre === '') {
       const selectMovie = `SELECT * FROM movies ORDER BY title ${sort}`;
       const [resultMovies] = await conex.query(selectMovie); //no necesito un segundo parámetro porque no tengo un valor variable que sustituir
       listMovies = resultMovies;
