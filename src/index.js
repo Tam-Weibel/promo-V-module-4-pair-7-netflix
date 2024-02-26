@@ -1,6 +1,8 @@
 const express = require('express');
 const cors = require('cors');
 const mysql = require('mysql2/promise');
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 
 // create and config server
 const server = express();
@@ -13,7 +15,7 @@ async function getConnection() {
   const connection = await mysql.createConnection({
     host: 'localhost',
     user: 'root',
-    password: '91-6320469%gR',
+    password: 'r00t',
     database: 'Netflix',
   });
   connection.connect();
@@ -25,6 +27,40 @@ const serverPort = 4000;
 server.listen(serverPort, () => {
   console.log(`Server listening at http://localhost:${serverPort}`);
 });
+
+//generar token
+const generateToken = (data) => {
+  const token = jwt.sign(data, 'secret_key_me_lo_invento', { expiresIn: '1h' });  //función propia de jwt
+  return token;
+};
+
+//verificar token
+const verifyToken = (token) => {
+  try {
+    const verifyT = jwt.verify(token, 'secret_key_me_lo_invento'); //verify() es una función propia de jwt
+    return verifyT;
+  } catch (error){
+    return null
+  }
+};
+
+//autenticación
+const authenticate = (req, res, next) => {
+  const tokenBearer = req.headers['authorization'];
+  // console.log(token);
+  if(!tokenBearer) {
+    return res.status(401).json({error: 'No hay token'});
+  }
+  const token = tokenBearer.split(' ')[1];
+  const validateToken = verifyToken(token);
+  if(!validateToken) {
+    return res.status(401).json({error: 'Token incorrecto'});
+  }
+  // console.log(validateToken);
+  req.user = validateToken;
+  next(); //función para mandar los datos del usuario validado a la siguiente función
+};
+
 
 //endpoints
 server.get('/movies', async (req, res) => {
@@ -65,6 +101,57 @@ server.get('/movie/:idMovies', async(req, res) => {
   const [results] = await conex.query(sql, [req.params.idMovies]);
   conex.end();
   res.render('movie', {data: results[0]});
+});
+
+//endpoint register
+server.post('/register', async (req, resp) => {
+  const { email, pass } = req.body;
+  const conex = await getConnection();
+  const selectUser = 'select * from users where email = ? ';
+  const [resultSelect] = await conex.query(selectUser, [email, username]);
+  if (resultSelect.length === 0) {
+    const passwordHashed = await bcrypt.hash(pass, 10);
+    const insertUser =
+      'insert into users (email, hashed_password) values (?,?,?)';
+    const [resultInsert] = await conex.query(insertUser, [
+      email,
+      passwordHashed,
+    ]);
+    resp.json({ success: true, data: resultInsert });
+  }
+});
+
+//endpoint login 
+server.post('/login', async (req, resp) => {
+  const { email, pass } = req.body;
+  const conex = await getConnection();
+  const selectUser = 'select * from users where email = ?';
+  const [resultSelect] = await conex.query(selectUser, [email]);
+  if (resultSelect.length !== 0) {
+    const isOkPass = await bcrypt.compare( pass, resultSelect[0].hashed_password); // //esta es una función propia de bcrypt
+    if (isOkPass) {
+      // generar token
+      const infoToken = {
+        id: resultSelect[0].idUsers,
+        email: resultSelect[0].email,
+      };
+      const token = generateToken(infoToken);
+      resp.json({
+        success: true,
+        token: token,
+      });
+    } else {
+      resp.json({
+        success: false,
+        msj: 'contraseña incorrecta',
+      });
+    }
+  } else {
+    resp.json({
+      success: false,
+      msj: 'correo no existe',
+    });
+  }
 });
 
 

@@ -19,14 +19,22 @@ const sendLoginToApi = data => {
 const sendSingUpToApi = data => {
   console.log('Se están enviando datos al signup:', data);
   // CAMBIA ESTE FETCH PARA QUE APUNTE A UN ENDPOINT DE TU SERVIDOR, PIENSA SI DEBE SER GET O POST, PIENSA QUÉ DATOS DEBES ENVIAR, ETC
-  return fetch('//beta.adalab.es/curso-intensivo-fullstack-recursos/apis/netflix-v1/empty.json')
+  return fetch('//localhost:4000/register', {
+    method: 'POST',
+    body: JSON.stringify(data),
+		headers: { 'Content-type': 'application/json' },
+  })
     .then(response => response.json())
-    .then(() => {
+    .then((response) => {
       // CAMBIA EL CONTENIDO DE ESTE THEN PARA GESTIONAR LA RESPUESTA DEL SERVIDOR Y RETORNAR AL COMPONENTE APP LO QUE NECESITA
-      return {
-        success: false,
-        errorMessage: 'Usuario ya existente'
-      };
+      if(response.success) {
+        return {success: true, okMessage: 'Usuario registrado con éxito :)'}
+      } else {
+        return {
+          success: false,
+          errorMessage: 'Usuario ya existente'
+        };
+      }
     });
 };
 
