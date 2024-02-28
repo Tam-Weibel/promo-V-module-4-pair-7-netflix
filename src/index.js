@@ -3,12 +3,24 @@ const cors = require('cors');
 const mysql = require('mysql2/promise');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const { MongoClient, ServerApiVersion } = require('mongodb');
+const mongoose = require('mongoose');
+const dbConnect = require('../config/connection.js');
+dbConnect();
 
 // create and config server
 const server = express();
 server.use(cors());
 server.set('view engine', 'ejs');
 server.use(express.json());
+const uri = "mongodb+srv://tamaraweibel:vivS6F6CIbJsiDXf@cluster0.kw8svim.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
+const client = new MongoClient(uri, {
+  serverApi: {
+    version: ServerApiVersion.v1,
+    strict: true,
+    deprecationErrors: true,
+  }
+});
 
 //connect db
 async function getConnection() {
@@ -21,6 +33,20 @@ async function getConnection() {
   connection.connect();
   return connection;
 }
+
+async function run() {
+  try {
+    // Connect the client to the server	(optional starting in v4.7)
+    await client.connect();
+    // Send a ping to confirm a successful connection
+    await client.db("admin").command({ ping: 1 });
+    console.log("Pinged your deployment. You successfully connected to MongoDB!");
+  } finally {
+    // Ensures that the client will close when you finish/error
+    await client.close();
+  }
+}
+run().catch(console.dir);
 
 // init express aplication
 const serverPort = 4000;
